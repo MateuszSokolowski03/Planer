@@ -26,8 +26,6 @@ SECRET_KEY = 'django-insecure-skw7e6n^&6$%hk&r@v)efxhk!3&@!4zwy9aphkyb%%i77&!*6(
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -37,6 +35,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'PlanerApp',
 ]
 
 MIDDLEWARE = [
