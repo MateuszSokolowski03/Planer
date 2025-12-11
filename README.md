@@ -77,7 +77,7 @@ Dostępne mini-gry w wersji MVP:
 Aby poprawnie uruchomić serwer lokelnie, wykonaj poniższe kroki w głównym katalogu projektu.
 
 ### 1. Instalacja zależności
-npm install
+   *npm install*
 
 ### 2. Konfiguracja zmiennych środowiskowych (.env)
 Utwórz plik .env w głównym katalogu (tam gdzie package.json) i uzupełnij go według wzoru:
@@ -91,16 +91,16 @@ Synchronizacja schematu bazy danych (tworzenie tavel) oraz generowanie klienta P
 
 Wpisz następujące komendy do terminala:
 
-#### Generowanie klienta (wymagane przy pierwszym uruchomieniu)
-*npx prisma generate --schema ./backend/prisma/schema.prisma*
+  #### Generowanie klienta (wymagane przy pierwszym uruchomieniu)
+    *npx prisma generate --schema ./backend/prisma/schema.prisma*
 
-#### Wypchnięcie zmian do bazy danych
-*npx prisma db push --schema ./backend/prisma/schema.prisma*
+  #### Wypchnięcie zmian do bazy danych
+    *npx prisma db push --schema ./backend/prisma/schema.prisma*
 
 ### 4.Uruchomienie serwera
 Uruchom backend w trybie developerskim (z automatycznym restartem nodemon):
 
-*npm run backend*
+  *npm run backend*
 
 Po wpisaniu komendy powinno wypisać adres serwera i dokumentacji API np.
 
