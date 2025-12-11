@@ -100,7 +100,7 @@ Wpisz następujące komendy do terminala:
 ### 4.Uruchomienie serwera
 Uruchom backend w trybie developerskim (z automatycznym restartem nodemon):
 
-    npm run backend*
+    npm run backend
 
 Po wpisaniu komendy powinno wypisać adres serwera i dokumentacji API np.
 
@@ -115,9 +115,43 @@ Po uruchomieniu serwera wejdź na adres z dopiskiem `/docs` w adresie, np.:
 
 http://localhost:8000/docs
 
-Znajdziesz tam:
-- Listę wszystkich tras (Auth, Games, Wallet, User).
-- Możliwość testowania zapytań (np. logowania i grania) bezpośrednio w przeglądarce.
+### Opis endpointów
+
+#### Roulette
+- `POST /api/games/play-roulette` – Gra w ruletkę
+
+#### Coin Flip
+- `POST /api/games/play-coin-flip` – Gra w orzeł czy reszka
+
+#### Slots
+- `POST /api/games/play-slots` – Gra na automacie
+
+#### Slider
+- `POST /api/games/play-slider` – Gra na suwaku
+
+#### Rankings
+- `GET /api/ranking/{period}` – Ranking graczy (wg wygranych)
+
+#### Sapper Game
+- `POST /api/Sapper/start-sapper` – Rozpocznij nową grę Saper
+- `POST /api/Sapper/play-sapper` – Wykonaj ruch w Saperze
+- `POST /api/Sapper/resign-sapper` – Zakończ grę Saper
+
+#### Users
+- `GET /api/users/profile` – Pobierz profil użytkownika
+- `POST /api/users/register` – Rejestracja
+- `POST /api/users/login` – Logowanie
+- `GET /api/users/is-authenticated` – Sprawdź autoryzację
+- `PATCH /api/users/update-username` – Zmień nazwę użytkownika
+
+#### Wallet
+- `GET /api/wallet/get-wallet` – Pobierz portfel
+- `POST /api/wallet/deposit` – Dodaj środki do portfela
+- `POST /api/wallet/withdraw` – Wypłać środki z portfela
+
+#### General
+- `GET /` – Endpoint powitalny
+
 
 ## Struktura katalogów (Backend)
 - **backend/src/Controllers** - Logika biznesowa gier i użytkowników.
