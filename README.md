@@ -91,10 +91,10 @@ Synchronizacja schematu bazy danych (tworzenie tavel) oraz generowanie klienta P
 
 Wpisz następujące komendy do terminala:
 
-# Generowanie klienta (wymagane przy pierwszym uruchomieniu)
+#### Generowanie klienta (wymagane przy pierwszym uruchomieniu)
 *npx prisma generate --schema ./backend/prisma/schema.prisma*
 
-# Wypchnięcie zmian do bazy danych
+#### Wypchnięcie zmian do bazy danych
 *npx prisma db push --schema ./backend/prisma/schema.prisma*
 
 ### 4.Uruchomienie serwera
