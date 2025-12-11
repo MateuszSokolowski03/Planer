@@ -82,8 +82,8 @@ Aby poprawnie uruchomić serwer lokelnie, wykonaj poniższe kroki w głównym ka
 ### 2. Konfiguracja zmiennych środowiskowych (.env)
 Utwórz plik .env w głównym katalogu (tam gdzie package.json) i uzupełnij go według wzoru:
 
-DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE?schema=public"
-JWT_SECRET="twoj_tajny_klucz_jwt"
+    DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE?schema=public"
+    JWT_SECRET="twoj_tajny_klucz_jwt"
 
 ### 3. Baza danych (Prisma)
 Synchronizacja schematu bazy danych (tworzenie tavel) oraz generowanie klienta Prisma.
