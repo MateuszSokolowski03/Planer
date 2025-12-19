@@ -75,6 +75,42 @@ Dostępne mini-gry w wersji MVP:
 
 # Backend
 
+## Struktura projektu
+
+### Główne katalogi
+```
+backend/
+├── prisma/                  # Konfiguracja bazy danych
+│   ├── schema.prisma       # Schema modeli i relacji
+│   ├── prismaSingleton.ts  # Singleton klienta Prisma
+│   ├── seed.ts            # Podstawowe dane testowe
+│   └── seedRich.ts        # Rozszerzone dane testowe
+└── src/
+    ├── Controllers/        # Logika biznesowa endpointów
+    │   ├── authController.ts      # Rejestracja, logowanie
+    │   ├── walletController.ts    # Operacje portfela
+    │   ├── coinflipController.ts  # Gra Coinflip
+    │   ├── rouleteController.ts   # Gra Ruletka
+    │   ├── slotsController.ts     # Gra Slots
+    │   ├── sliderController.ts    # Gra Slider
+    │   ├── sapperController.ts    # Gra Saper
+    │   ├── rankingController.ts   # Rankingi graczy
+    │   ├── passwordResetController.ts # Reset haseł
+    │   └── adminController.ts     # Panel administratora
+    ├── Middleware/         # Middleware warstwy zabezpieczeń
+    │   ├── authMiddleware.ts      # Weryfikacja JWT tokenów
+    │   ├── adminMiddleware.ts     # Sprawdzanie uprawnień admin
+    │   └── balanceMiddleware.ts   # Walidacja salda przed grą
+    ├── Routes/            # Definicje tras API
+    │   ├── userRoutes.ts         # Trasy użytkowników
+    │   ├── walletRoutes.ts       # Trasy portfela
+    │   ├── gamesRoutes.ts        # Trasy gier
+    │   ├── sapperRoutes.ts       # Dedykowane trasy Sapera
+    │   ├── rankingRoutes.ts      # Trasy rankingów
+    │   └── adminRoutes.ts        # Trasy administratora
+    └── index.ts           # Punkt wejściowy serwera
+```
+
 ## Struktura bazy danych
 
 ### Główne modele
@@ -141,7 +177,7 @@ Tokeny resetowania haseł z datą wygaśnięcia i indeksami wydajnościowymi.
 - **Atomowość:** Operacje Prisma w pojedynczych transakcjach
 - **Error handling:** Pełne obsługa błędów z kodami HTTP
 
-## Backend - Instrukcja uruchomienia
+## Instrukcja uruchomienia
 Aby poprawnie uruchomić serwer lokelnie, wykonaj poniższe kroki w głównym katalogu projektu.
 
 ### 1. Wymagania systemowe
@@ -235,3 +271,138 @@ http://localhost:8000/docs
 ### Hashowanie haseł
 - Hasła są hashowane za pomocą bcrypt
 - Salt rounds: 10 (domyślnie)
+
+---
+
+# Frontend
+
+## Architektura aplikacji
+
+Frontend zbudowany w **Vue 3** z **Composition API**, wykorzystujący nowoczesne narzędzia i biblioteki dla optymalnego user experience.
+
+
+## Struktura projektu
+
+### Główne katalogi
+```
+frontend/src/
+├── components/           # Komponenty wielokrotnego użytku
+│   ├── games/           # Modale gier (Slots, Roulette, itp.)
+│   ├── layout/          # Layout (Header, Footer)
+│   ├── modals/          # Modale systemowe (Login, Wallet)
+│   ├── sections/        # Sekcje strony (Hero, Games, Leaderboard)
+│   └── ui/             # Komponenty UI (GameCard, LeaderboardRow)
+├── views/               # Widoki główne aplikacji
+│   └── user/           # Panel użytkownika
+├── router/             # Konfiguracja routingu
+└── stores/            # Magazyny stanu (Pinia)
+```
+
+### Routing i nawigacja
+System routingu obsługuje:
+- **Publiczne trasy** (`/home`, `/games`, `/leaderboard`)
+- **Chronione trasy** (`/panel/*` - wymaga autoryzacji)
+- **Trasy administracyjne** (`/admin` - tylko dla adminów)
+- **Strony pomocnicze** (`/legal/*`, `/support/*`)
+
+### State Management
+
+#### Auth Store
+Centralny magazyn autoryzacji obsługujący:
+- **Autentyfikację JWT** - logowanie, wylogowanie, odświeżanie tokenów
+- **Dane użytkownika** - profil, rola, uprawnienia
+- **Saldo portfela** - aktualne środki, historia transakcji
+- **Persystencję** - zapis do `localStorage`
+
+```typescript
+// Kluczowe metody auth store
+loginSuccess(token, user)    // Logowanie użytkownika
+fetchBalance()               // Pobieranie salda z API
+updateUsername(newUsername)  // Aktualizacja nazwy użytkownika
+logout()                    // Wylogowanie i czyszczenie danych
+```
+
+## Komponenty gier
+
+### Modale gier
+Każda gra ma dedykowany modal z ujednoliconą strukturą:
+- 🎰 **SlotGameModal** - automat z 3 bębnami i 9 symbolami
+- 🎲 **RouletteGameModal** - ruletka europejska 0-36
+- 🪙 **CoinflipGameModal** - rzut monetą z animacjami
+- 🎯 **SliderGameModal** - gra precyzyjna z suwakiem
+- 💣 **MinesweeperGameModal** - saper z progresywnym mnożnikiem
+
+### Wspólne cechy modali gier:
+- **Walidacja zakładów** - sprawdzanie salda przed grą
+- **Animacje rezultatów** - confetti przy wygranych
+- **Real-time updates** - natychmiastowa aktualizacja salda
+- **Error handling** - obsługa błędów API i sieci
+
+## Interfejs użytkownika
+
+### Design System
+- **Motyw** - ciemny z gradientowymi akcentami (fiolet/cyan)
+- **Typografia** - Space Grotesk (Google Fonts)
+- **Ikony** - Material Symbols Outlined
+- **Kolory** - gradientowe tła, transparentne elementy
+- **Responsywność** - mobile-first, adaptacyjny layout
+
+### Komponenty UI
+- **GameCard** - karty gier z hover effects
+- **LeaderboardRow** - wiersze rankingu z kolorowym tłem
+- **HeaderComponent** - różne wersje dla auth/unauth
+- **FooterComponent** - linki prawne i wsparcie
+
+### Animacje i UX
+- **Smooth scrolling** - płynne przewijanie do sekcji
+- **Backdrop blur** - rozmycie tła modali
+- **Hover states** - interaktywne stany elementów
+- **Loading states** - wskaźniki ładowania
+- **Canvas confetti** - fajerwerki przy wygranych
+
+## Panel użytkownika
+
+Chroniona sekcja `/panel` z podstronami:
+- **Dashboard** - podsumowanie konta i aktywności
+- **Profil** - edycja danych osobowych
+- **Bezpieczeństwo** - ustawienia zabezpieczeń
+- **Hasło** - zmiana hasła
+- **Powiadomienia** - centrum powiadomień
+
+## Zabezpieczenia frontend
+
+### Ochrona tras
+- **Route guards** - middleware sprawdzający autoryzację
+- **Role-based access** - różne uprawnienia (USER/ADMIN)
+- **Token validation** - weryfikacja JWT w każdym żądaniu
+- **Auto-logout** - wylogowanie po wygaśnięciu tokena
+
+### Walidacja po stronie klienta
+- **Input validation** - sprawdzanie formularzy przed wysłaniem
+- **Sanityzacja danych** - oczyszczanie danych wejściowych  
+- **XSS protection** - ochrona przed atakami skryptowymi
+- **CSRF tokens** - (planowane) tokeny antyfałszywościowe
+
+## Instrukcja uruchomienia Frontend
+
+### 1. Instalacja zależności
+```bash
+cd frontend
+npm install
+```
+
+### 2. Uruchomienie w trybie deweloperskim
+```bash
+npm run dev
+```
+
+### 3. Build produkcyjny
+```bash
+npm run build      # Budowanie
+npm run preview    # Podgląd buildu
+```
+
+### 4. Wymagania systemowe (Frontend)
+- Node.js v20.19+ lub v22.12+
+- npm v8.0 lub nowszy
+- Nowoczesna przeglądarka (Chrome 90+, Firefox 88+)
