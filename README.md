@@ -73,20 +73,94 @@ Dostępne mini-gry w wersji MVP:
 
 ---
 
+# Backend
+
+## Struktura bazy danych
+
+### Główne modele
+
+#### User
+Użytkownicy aplikacji z podstawowymi danymi osobowymi, rolą (NORMAL/ADMIN) i systemem banów.
+- **Klucze:** email (unikalny), username
+- **Relacje:** 1:1 z Wallet, 1:N z SapperMap i PasswordReset
+
+#### Wallet  
+Portfel użytkownika przechowujący saldo w formacie Decimal(10,2).
+- **Relacje:** 1:1 z User, 1:N z Transaction
+
+#### Transaction
+Historia operacji finansowych (wpłaty, wypłaty, zakłady, wygrane).
+- **Typy:** DEPOSIT, WITHDRAWAL, LOST, WIN, BET
+
+#### SapperMap
+Aktywna gra Saper użytkownika z planszą zapisaną jako string.
+- **Ograniczenie:** jeden aktywny Saper na użytkownika
+
+#### Game
+Katalog dostępnych gier w kasynie z możliwością włączania/wyłączania.
+
+#### PasswordReset
+Tokeny resetowania haseł z datą wygaśnięcia i indeksami wydajnościowymi.
+
+### Kluczowe cechy
+- **UUID** jako ID we wszystkich tabelach
+- **Cascade delete** dla powiązanych danych użytkownika
+- **Indeksy** na często wyszukiwanych polach
+- **Enumy** dla typów transakcji i ról użytkowników
+
+**Uwaga:** Tabela `spatial_ref_sys` to systemowa tabela PostgreSQL.
+
+## Logika gier
+
+### Mechanika i wypłaty
+
+| Gra | RNG | Mechanika | Wypłaty | House Edge |
+|-----|-----|-----------|---------|------------|
+| **Ruletka** | `Math.random() * 100 % 37` | Liczby 0-36 + kolory (parz./nieparz.) | Liczba: 5x, Kolor: 2x (kumulatywne) | ~13.5% |
+| **Coinflip** | `Math.random() * 100 % 2` | 50/50 (parz./nieparz.) | 2x przy wygranej | 0% |
+| **Slots** | Weighted random | 9 symboli, 3 bębny, tylko 3x | 🍒🍋: 2x, 🍊: 3x, 🍇: 4-5x, 🍉: 8x, 🔔: 10x, ⭐: 15x, 7️⃣: 50x | ~25% |
+| **Slider** | `getRandomInt(0, 100)` | Gracz wybiera zakres [min,max] | `bet * (100/zakres) * 0.98` | 2% |
+| **Saper** | - | NxN plansza, progresywny mnożnik | Rośnie z odkrytymi polami | Zmienny |
+
+### Slot Machine - symbole i wagi
+| Symbol | Waga | Wypłata (3x) | 
+|--------|------|--------------|
+| 🍒 CHERRY | 100 | 2x |
+| 🍋 LEMON | 100 | 2x |
+| 🍊 ORANGE | 90 | 3x |
+| 🍇 PLUM | 80 | 4x |
+| 🍇 GRAPE | 70 | 5x |
+| 🍉 WATERMELON | 60 | 8x |
+| 🔔 BELL | 40 | 10x |
+| ⭐ STAR | 20 | 15x |
+| 7️⃣ SEVEN | 10 | 50x |
+
+### Zabezpieczenia
+- **Walidacja:** Wszystkie kontrolery sprawdzają użytkownika
+- **Transakcje:** Każda gra → wpis w `Transaction` (WIN/LOST)  
+- **Atomowość:** Operacje Prisma w pojedynczych transakcjach
+- **Error handling:** Pełne obsługa błędów z kodami HTTP
+
 ## Backend - Instrukcja uruchomienia
 Aby poprawnie uruchomić serwer lokelnie, wykonaj poniższe kroki w głównym katalogu projektu.
 
-### 1. Instalacja zależności
+### 1. Wymagania systemowe
+- Node.js v16.0 lub nowszy
+- npm v8.0 lub nowszy  
+- PostgreSQL v12 lub nowszy
+
+### 2. Instalacja zależności
     npm install
 
-### 2. Konfiguracja zmiennych środowiskowych (.env)
+### 3. Konfiguracja zmiennych środowiskowych (.env)
 Utwórz plik .env w głównym katalogu (tam gdzie package.json) i uzupełnij go według wzoru:
 
     DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE?schema=public"
     JWT_SECRET="twoj_tajny_klucz_jwt"
+    PORT=8000
 
-### 3. Baza danych (Prisma)
-Synchronizacja schematu bazy danych (tworzenie tavel) oraz generowanie klienta Prisma.
+### 4. Baza danych (Prisma)
+Synchronizacja schematu bazy danych (tworzenie tabel) oraz generowanie klienta Prisma.
 **Uwaga:** Plik schematu znajduje się w folderze backend/prisma/
 
 Wpisz następujące komendy do terminala:
@@ -97,17 +171,11 @@ Wpisz następujące komendy do terminala:
   #### Wypchnięcie zmian do bazy danych
     npx prisma db push --schema ./backend/prisma/schema.prisma
 
-### 4.Uruchomienie serwera
+### 5.Uruchomienie serwera
 Uruchom backend w trybie developerskim (z automatycznym restartem nodemon):
 
     npm run backend
 
-Po wpisaniu komendy powinno wypisać adres serwera i dokumentacji API np.
-
-Server running on http://localhost:8000  
-API Documentation available at http://localhost:8000/docs
-
-**Uwaga:** Backend domyślnie uruchamia się na porcie **8000**. Jeśli chcesz zmienić port, ustaw odpowiednią zmienną środowiskową w pliku `.env`.
 
 ## Dokumentacja API
 Projekt posiada automatycznie generowaną dokumentację endpointów (Swagger).
@@ -152,9 +220,18 @@ http://localhost:8000/docs
 #### General
 - `GET /` – Endpoint powitalny
 
+## Bezpieczeństwo
 
-## Struktura katalogów (Backend)
-- **backend/src/Controllers** - Logika biznesowa gier i użytkowników.
-- **backend/src/Routes** - Definicje ścieżek URL.
-- **backend/src/Middlewares** - Weryfikacja JWT i walidacja.
-- **backend/prisma/schema.prisma** - Struktura bazy danych.
+### Autoryzacja JWT
+- Tokeny są generowane przy logowaniu
+- Middleware `authMiddleware.js` weryfikuje tokeny
+- Tokeny zawierają ID użytkownika i czas wygaśnięcia
+
+### Walidacja danych
+- Wszystkie dane wejściowe są walidowane
+- Użycie `express-validator` do sprawdzania formatów
+- Sanityzacja danych przed zapisem do bazy
+
+### Hashowanie haseł
+- Hasła są hashowane za pomocą bcrypt
+- Salt rounds: 10 (domyślnie)
