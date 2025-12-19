@@ -385,24 +385,25 @@ Chroniona sekcja `/panel` z podstronami:
 
 ## Instrukcja uruchomienia Frontend
 
-### 1. Instalacja zależności
+### 1. Wymagania systemowe
+- Node.js v20.19+ lub v22.12+
+- npm v8.0 lub nowszy
+- Nowoczesna przeglądarka (Chrome 90+, Firefox 88+)
+
+### 2. Instalacja zależności
 ```bash
 cd frontend
 npm install
 ```
 
-### 2. Uruchomienie w trybie deweloperskim
+### 3. Uruchomienie w trybie deweloperskim
 ```bash
 npm run dev
 ```
 
-### 3. Build produkcyjny
+### 4. Build produkcyjny
 ```bash
 npm run build      # Budowanie
 npm run preview    # Podgląd buildu
 ```
 
-### 4. Wymagania systemowe (Frontend)
-- Node.js v20.19+ lub v22.12+
-- npm v8.0 lub nowszy
-- Nowoczesna przeglądarka (Chrome 90+, Firefox 88+)
